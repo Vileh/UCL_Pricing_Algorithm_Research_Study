@@ -64,6 +64,7 @@ def process_testing_data(data):
 
 def predict_price(test_data, model):
     predictions = np.array([])
+    exp_profits = np.array([])
     if isinstance(test_data, pd.DataFrame):
         for _, row in test_data.iterrows():
             cost = row['output_own_cost']
@@ -75,6 +76,7 @@ def predict_price(test_data, model):
             price_optimisation = opt.minimize(profit_function, params_init, args=(cost, weekday, mkt_cond, *model), constraints=cons)
 
             predictions = np.append(predictions, price_optimisation.x[0])
+            exp_profits = np.append(exp_profits, -price_optimisation.fun)
     else:
         cost = test_data['output_own_cost']
         weekday = test_data['bool_week_day']
@@ -85,8 +87,9 @@ def predict_price(test_data, model):
         price_optimisation = opt.minimize(profit_function, params_init, args=(cost, weekday, mkt_cond, *model), constraints=cons)
 
         predictions = np.append(predictions, price_optimisation.x[0])
+        exp_profits = np.append(exp_profits, -price_optimisation.fun)
 
-    return predictions
+    return predictions, exp_profits
 
 # Sigmoid mu Normal MLE
 def share_log_likelihood(params, data):
